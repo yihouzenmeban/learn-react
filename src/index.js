@@ -22,15 +22,14 @@ class Square extends React.Component {
 class Step extends React.Component {
     render() {
         const step = this.props.step;
-        const move = this.props.move;
         const stepNumber = this.props.stepNumber;
         const desc = step.desc;
 
         return (
             <li>
-                <button onClick={ () => this.props.jumpTo(move) }>
+                <button onClick={ () => this.props.jumpTo(step.stepNumber) }>
                     {
-                        (move === stepNumber)
+                        (step.stepNumber === stepNumber)
                         ? <strong>{ desc }</strong>
                         : desc
                     }
@@ -56,7 +55,6 @@ class GameInfo extends React.Component {
             return (
                 <Step
                     key={ move }
-                    move={ move }
                     stepNumber={ stepNumber }
                     step={ step }
                     jumpTo={ this.props.jumpTo }
@@ -135,7 +133,8 @@ class Game extends React.Component {
         this.state = {
             history: [{
                 squares: Array(9).fill(null),
-                desc: 'Game start'
+                desc: 'Game start',
+                stepNumber: 0
             }],
             xIsNext: true,
             stepNumber: 0,
@@ -161,7 +160,8 @@ class Game extends React.Component {
         this.setState({
             history: history.concat([{
                 squares,
-                desc
+                desc,
+                stepNumber: history.length
             }]),
             stepNumber: history.length,
             xIsNext: !this.state.xIsNext,
