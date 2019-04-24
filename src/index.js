@@ -20,16 +20,14 @@ function Square(props) {
 
 function Step(props) {
     const step = props.step;
-    const stepNumber = props.stepNumber;
-    const desc = step.desc;
 
     return (
         <li>
             <button onClick={() => props.jumpTo(step.stepNumber)}>
                 {
-                    (step.stepNumber === stepNumber)
-                        ? <strong>{ desc }</strong>
-                        : desc
+                    (step.stepNumber === props.stepNumber)
+                        ? <strong>{ step.desc }</strong>
+                        : step.desc
                 }
             </button>
         </li>
@@ -79,13 +77,12 @@ function GameInfo(props) {
 
 function BoardRow(props) {
     const item = [];
-    const line = props.line;
 
     for (let i = 3 * props.i; i < 3 * props.i + 3; i++) {
         item.push(<Square
             key={ i }
             value={ props.squares[i] }
-            isRed={ line.indexOf(i) > -1 }
+            isRed={ props.line.indexOf(i) > -1 }
             handleClick={ () => props.handleClick(i) }
         />)
     }
@@ -99,25 +96,25 @@ function BoardRow(props) {
 
 
 function Board(props) {
-    const item = [];
+    return (
+        <div className="game-board">
+            { Array(3).fill(null).reduce(boardRow, []) }
+        </div>
+    );
 
-    for (let i = 0; i < 3; i++) {
-        item.push(
+    function boardRow(result, current, currentIndex) {
+        result.push(
             <BoardRow
-                key={ i }
-                i={ i }
+                key={ currentIndex }
+                i={ currentIndex }
                 line={ props.line }
                 squares={ props.squares }
                 handleClick={ props.handleClick }
             />
         );
-    }
 
-    return (
-        <div className="game-board">
-            { item }
-        </div>
-    );
+        return result;
+    }
 }
 
 
@@ -133,6 +130,27 @@ function Game() {
 
     const squares = history[stepNumber].squares;
     const result = calculateWinner(squares);
+
+    return (
+        <div className="game">
+            <Board
+                squares={ squares }
+                line={ result.line }
+
+                handleClick={ handleClick }
+            />
+            <GameInfo
+                history={ history }
+                xIsNext={ xIsNext }
+                stepNumber={ stepNumber }
+                result={ result }
+                sort={ sort }
+
+                toggleSort={ () => setSort(!sort) }
+                jumpTo={ jumpTo }
+            />
+        </div>
+    );
 
     function handleClick(i) {
         if (result.winner || squares[i]) return false;
@@ -155,27 +173,6 @@ function Game() {
         setStepNumber(step);
         setXIsNext((step % 2) === 0);
     }
-
-    return (
-        <div className="game">
-            <Board
-                squares={ squares }
-                line={ result.line }
-
-                handleClick={ handleClick }
-            />
-            <GameInfo
-                history={ history }
-                xIsNext={ xIsNext }
-                stepNumber={ stepNumber }
-                result={ result }
-                sort={ sort }
-
-                toggleSort={ () => setSort(!sort) }
-                jumpTo={ jumpTo }
-            />
-        </div>
-    );
 }
 
 // ========================================
