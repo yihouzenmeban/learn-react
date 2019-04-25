@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
@@ -36,7 +36,6 @@ function Step(props) {
 
 
 function GameInfo(props) {
-    const result = props.result;
     const stepNumber = props.stepNumber;
     const current = props.history[stepNumber];
 
@@ -57,13 +56,17 @@ function GameInfo(props) {
         );
     })
 
-    const status = result.winner
-        ? `Winner: ${ result.winner }`
+    const status = props.result.winner
+        ? `Winner: ${ props.result.winner }`
         : (
             current.squares.indexOf(null) > -1
                 ? `Next player: ${ props.xIsNext ? 'X' : 'O' }`
                 : `A dead heat`
         );
+
+    useEffect(() => {
+        document.title = status;
+    });
 
     return (
         <div className="game-info">
@@ -76,20 +79,20 @@ function GameInfo(props) {
 
 
 function BoardRow(props) {
-    const item = [];
-
-    for (let i = 3 * props.i; i < 3 * props.i + 3; i++) {
-        item.push(<Square
-            key={ i }
-            value={ props.squares[i] }
-            isRed={ props.line.indexOf(i) > -1 }
-            handleClick={ () => props.handleClick(i) }
-        />)
-    }
-
     return (
         <div className="board-row">
-            { item }
+            {
+                Array.from(Array(3), (el, i) => props.i * 3 + i).reduce((raw, current) => {
+                    raw.push(<Square
+                        key={ current }
+                        value={ props.squares[current] }
+                        isRed={ props.line.indexOf(current) > -1 }
+                        handleClick={ () => props.handleClick(current) }
+                    />)
+
+                    return raw;
+                }, [])
+             }
         </div>
     );
 }
@@ -98,15 +101,15 @@ function BoardRow(props) {
 function Board(props) {
     return (
         <div className="game-board">
-            { Array(3).fill(null).reduce(boardRow, []) }
+            { [...Array(3).keys()].reduce(boardRow, []) }
         </div>
     );
 
-    function boardRow(result, current, currentIndex) {
+    function boardRow(result, current) {
         result.push(
             <BoardRow
-                key={ currentIndex }
-                i={ currentIndex }
+                key={ current }
+                i={ current }
                 line={ props.line }
                 squares={ props.squares }
                 handleClick={ props.handleClick }
