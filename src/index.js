@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+// 每一个棋格
 function Square(props) {
     return (
         <button
             className="square"
-            onClick={props.handleClick}
+            onClick={ props.handleClick }
         >
             {
                 props.isRed
@@ -17,13 +18,13 @@ function Square(props) {
     );
 }
 
-
+// 每一步记录
 function Step(props) {
     const step = props.step;
 
     return (
         <li>
-            <button onClick={() => props.jumpTo(step.stepNumber)}>
+            <button onClick={ () => props.jumpTo(step.stepNumber) }>
                 {
                     (step.stepNumber === props.stepNumber)
                         ? <strong>{ step.desc }</strong>
@@ -66,7 +67,7 @@ function GameInfo(props) {
 
     useEffect(() => {
         document.title = status;
-    });
+    }, [ status ]);
 
     return (
         <div className="game-info">
@@ -110,9 +111,7 @@ function Board(props) {
             <BoardRow
                 key={ current }
                 i={ current }
-                line={ props.line }
-                squares={ props.squares }
-                handleClick={ props.handleClick }
+                { ...props }
             />
         );
 
@@ -131,7 +130,9 @@ function Game() {
     const [stepNumber, setStepNumber] = useState(0);
     const [sort, setSort] = useState(false);
 
+    // 获取当前回合下各棋子的位置
     const squares = history[stepNumber].squares;
+    // 游戏结果
     const result = calculateWinner(squares);
 
     return (
@@ -156,10 +157,14 @@ function Game() {
     );
 
     function handleClick(i) {
+        // 已经胜利或者当前棋格有棋子
         if (result.winner || squares[i]) return false;
 
+        // 落子
         const newSquares = squares.slice();
         newSquares[i] = xIsNext ? 'X' : 'O';
+
+        // 落子坐标
         const location = `(${ Math.floor(i / 3) + 1 }, ${ i % 3 + 1 })`;
         const desc = `${ newSquares[i] } move to ${ location }`;
 
